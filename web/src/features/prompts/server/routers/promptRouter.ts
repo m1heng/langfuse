@@ -549,6 +549,28 @@ export const promptRouter = createTRPCRouter({
         console.error(error);
       }
     }),
+  byVersion: protectedProjectProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        promptName: z.string(),
+        version: z.number(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      throwIfNoAccess({
+        session: ctx.session,
+        projectId: input.projectId,
+        scope: "prompts:read",
+      });
+      return ctx.prisma.prompt.findFirst({
+        where: {
+          projectId: input.projectId,
+          id: input.promptName,
+          version: input.version,
+        },
+      });
+    }),
   allVersions: protectedProjectProcedure
     .input(
       z.object({
